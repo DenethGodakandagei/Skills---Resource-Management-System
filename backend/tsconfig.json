@@ -1,0 +1,42 @@
+{
+  "compilerOptions": {
+    /* -------------------- File Layout -------------------- */
+    "rootDir": "./src",
+    "outDir": "./dist",
+
+    /* -------------------- Environment -------------------- */
+    "target": "ES2016",
+    "lib": ["ESNext"],
+    "types": ["node"],
+
+    /* -------------------- Module System -------------------- */
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "verbatimModuleSyntax": true,
+
+    /* -------------------- Interop & Output -------------------- */
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "sourceMap": true,
+    "declaration": true,
+    "declarationMap": true,
+
+    /* -------------------- Type Safety -------------------- */
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true,
+
+    /* -------------------- Build Safety -------------------- */
+    "isolatedModules": true,
+    "moduleDetection": "force",
+    "noUncheckedSideEffectImports": true,
+
+    /* -------------------- React (safe even for backend) -------------------- */
+    "jsx": "react-jsx",
+
+    /* -------------------- Performance -------------------- */
+    "skipLibCheck": true
+  },
+  "include": ["src"],
+  "exclude": ["node_modules", "dist"]
+}
