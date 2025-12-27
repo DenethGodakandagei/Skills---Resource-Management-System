@@ -1,17 +1,19 @@
 import express from "express";
 import cors from "cors";
-import dotenv from "dotenv";
-import apiRoutes from "./routes/api.routes.js";
 
-dotenv.config();
+import personnelRoutes from "./routes/personnel.routes.js";
+import skillRoutes from "./routes/skill.routes.js";
+import projectRoutes from "./routes/project.routes.js";
+import matchRoutes from "./routes/matching.routes.js";
 
 const app = express();
 
-// Middleware
 app.use(cors());
 app.use(express.json());
 
-// Routes
-app.use("/api", apiRoutes);
+app.use("/api/personnel", personnelRoutes);
+app.use("/api/skills", skillRoutes);
+app.use("/api/projects", projectRoutes);
+app.use("/api/match", matchRoutes);
 
 export default app;
