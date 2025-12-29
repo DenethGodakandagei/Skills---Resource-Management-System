@@ -104,3 +104,24 @@ export const assignSkill = async (req: Request, res: Response) => {
     res.status(500).json({ error: err });
   }
 };
+// GET skills of a personnel
+export const getPersonnelSkills = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    const [rows] = await pool.query(
+      `
+      SELECT s.id, s.name, ps.proficiency_level
+      FROM personnel_skills ps
+      JOIN skills s ON s.id = ps.skill_id
+      WHERE ps.personnel_id = ?
+      `,
+      [id]
+    );
+
+    res.json(rows);
+  } catch (err) {
+    res.status(500).json({ error: err });
+  }
+};
+

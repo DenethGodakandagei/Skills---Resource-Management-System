@@ -10,5 +10,7 @@ router.put("/:id", controller.updatePersonnel);
 router.delete("/:id", controller.deletePersonnel);
 
 router.post("/:id/skills", controller.assignSkill);
+router.get("/:id/skills", controller.getPersonnelSkills);
+
 
 export default router;
