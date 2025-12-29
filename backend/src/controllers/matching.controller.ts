@@ -10,9 +10,17 @@ export const matchPersonnel = async (req: Request, res: Response) => {
         p.id,
         p.name,
         p.role,
-        GROUP_CONCAT(
-          CONCAT(s.name, ' (', ps.proficiency_level, ')')
-        ) AS skills
+        JSON_ARRAYAGG(
+          JSON_OBJECT(
+            'skill', s.name,
+            'proficiency', ps.proficiency_level,
+            'required', pr.min_proficiency_level
+          )
+        ) AS skills,
+        ROUND(
+          (COUNT(DISTINCT pr.skill_id) /
+          (SELECT COUNT(*) FROM project_requirements WHERE project_id = ?)) * 100
+        ) AS match_score
       FROM personnel p
       JOIN personnel_skills ps ON p.id = ps.personnel_id
       JOIN skills s ON ps.skill_id = s.id
@@ -22,12 +30,18 @@ export const matchPersonnel = async (req: Request, res: Response) => {
       GROUP BY p.id
       HAVING COUNT(DISTINCT pr.skill_id) =
         (SELECT COUNT(*) FROM project_requirements WHERE project_id = ?)
+      ORDER BY match_score DESC;
     `;
 
-    const [rows] = await pool.query(sql, [projectId, projectId]);
+    const [rows] = await pool.query(sql, [
+      projectId,
+      projectId,
+      projectId,
+    ]);
 
     res.json(rows);
   } catch (err) {
-    res.status(500).json({ error: err });
+    console.error(err);
+    res.status(500).json({ error: "Skill matching failed" });
   }
 };
