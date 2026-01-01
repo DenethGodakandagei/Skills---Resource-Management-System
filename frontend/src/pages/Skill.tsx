@@ -26,7 +26,7 @@ export default function Skills() {
   };
 
   return (
-    <div className="p-6 max-w-5xl mx-auto">
+    <div className="p-6 max-w-7xl mx-auto">
       <h1 className="text-2xl font-semibold mb-1">Skill Catalog</h1>
       <p className="text-sm text-gray-500 mb-6">
         Manage skills and categories
@@ -64,46 +64,58 @@ export default function Skills() {
       </div>
 
       {/* Skills Table */}
-      <div className="border rounded overflow-hidden">
-        <table className="w-full text-sm">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="text-left px-4 py-2 border-b">Skill Name</th>
-              <th className="text-left px-4 py-2 border-b">Category</th>
-              <th className="text-left px-4 py-2 border-b">Description</th>
-              <th className="text-left px-4 py-2 border-b">Action</th>
-            </tr>
-          </thead>
+     {/* Table */}
+<div className="bg-white rounded shadow overflow-hidden">
+  <table className="w-full text-sm">
+    <thead className="bg-gray-100">
+      <tr>
+        <th className="p-3 text-left">Skill</th>
+        <th className="p-3 text-left">Category</th>
+        <th className="p-3 text-left">Description</th>
+        <th className="p-3 text-right">Action</th>
+      </tr>
+    </thead>
 
-          <tbody>
-            {skills.length === 0 && (
-              <tr>
-                <td colSpan={4} className="text-center py-6 text-gray-400">
-                  No skills found
-                </td>
-              </tr>
-            )}
+    <tbody>
+      {skills.length === 0 && (
+        <tr>
+          <td colSpan={4} className="p-6 text-center text-gray-400">
+            No skills found
+          </td>
+        </tr>
+      )}
 
-            {skills.map((s) => (
-              <tr key={s.id} className="hover:bg-gray-50">
-                <td className="px-4 py-2 border-b">{s.name}</td>
-                <td className="px-4 py-2 border-b">{s.category}</td>
-                <td className="px-4 py-2 border-b text-gray-600">
-                  {s.description}
-                </td>
-                <td className="px-4 py-2 border-b">
-                  <button
-                    onClick={() => del(s.id)}
-                    className="text-red-500 hover:underline"
-                  >
-                    Delete
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      {skills.map(s => (
+        <tr
+          key={s.id}
+          className="border-t border-gray-200 hover:bg-gray-50"
+        >
+          {/* Skill Name */}
+          <td className="p-3 font-medium">{s.name}</td>
+
+          {/* Category */}
+          <td className="p-3 text-gray-700">{s.category}</td>
+
+          {/* Description */}
+          <td className="p-3 text-gray-600">
+            {s.description}
+          </td>
+
+          {/* Actions */}
+          <td className="p-3 text-right">
+            <button
+              onClick={() => del(s.id)}
+              className="text-red-500 hover:underline"
+            >
+              Delete
+            </button>
+          </td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</div>
+
     </div>
   );
 }
