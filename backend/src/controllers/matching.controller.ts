@@ -5,11 +5,13 @@ export const matchPersonnel = async (req: Request, res: Response) => {
   try {
     const projectId = req.params.id;
 
-    const sql = `
+    const [rows] = await pool.query(
+      `
       SELECT 
         p.id,
         p.name,
         p.role,
+
         JSON_ARRAYAGG(
           JSON_OBJECT(
             'skill', s.name,
@@ -17,27 +19,33 @@ export const matchPersonnel = async (req: Request, res: Response) => {
             'required', pr.min_proficiency_level
           )
         ) AS skills,
+
         ROUND(
-          (COUNT(DISTINCT pr.skill_id) /
-          (SELECT COUNT(*) FROM project_requirements WHERE project_id = ?)) * 100
+          (
+            COUNT(DISTINCT CASE 
+              WHEN ps.proficiency_level >= pr.min_proficiency_level 
+              THEN pr.skill_id 
+            END)
+            /
+            (SELECT COUNT(*) 
+             FROM project_requirements 
+             WHERE project_id = ?)
+          ) * 100
         ) AS match_score
+
       FROM personnel p
       JOIN personnel_skills ps ON p.id = ps.personnel_id
       JOIN skills s ON ps.skill_id = s.id
-      JOIN project_requirements pr ON ps.skill_id = pr.skill_id
-      WHERE pr.project_id = ?
-        AND ps.proficiency_level >= pr.min_proficiency_level
-      GROUP BY p.id
-      HAVING COUNT(DISTINCT pr.skill_id) =
-        (SELECT COUNT(*) FROM project_requirements WHERE project_id = ?)
-      ORDER BY match_score DESC;
-    `;
+      LEFT JOIN project_requirements pr 
+        ON pr.skill_id = ps.skill_id 
+       AND pr.project_id = ?
 
-    const [rows] = await pool.query(sql, [
-      projectId,
-      projectId,
-      projectId,
-    ]);
+      GROUP BY p.id
+      HAVING match_score > 0
+      ORDER BY match_score DESC;
+      `,
+      [projectId, projectId]
+    );
 
     res.json(rows);
   } catch (err) {

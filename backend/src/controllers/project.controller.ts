@@ -118,6 +118,7 @@ export const addRequirement = async (req: Request, res: Response) => {
   }
 };
 
+
 /* =========================
    GET PROJECT REQUIREMENTS
 ========================= */
@@ -129,7 +130,11 @@ export const getProjectRequirements = async (
     const { id } = req.params;
 
     const [rows] = await pool.query(
-      `SELECT pr.id, s.name AS skill, pr.min_proficiency_level
+      `SELECT 
+         pr.project_id,
+         pr.skill_id,
+         s.name AS skill,
+         pr.min_proficiency_level
        FROM project_requirements pr
        JOIN skills s ON s.id = pr.skill_id
        WHERE pr.project_id = ?`,
@@ -150,11 +155,12 @@ export const deleteRequirement = async (
   res: Response
 ) => {
   try {
-    const { reqId } = req.params;
+    const { projectId, skillId } = req.params;
 
     await pool.query(
-      "DELETE FROM project_requirements WHERE id = ?",
-      [reqId]
+      `DELETE FROM project_requirements 
+       WHERE project_id = ? AND skill_id = ?`,
+      [projectId, skillId]
     );
 
     res.json({ message: "Requirement removed" });

@@ -17,7 +17,7 @@ export default function Projects() {
   });
 
   const [requirement, setRequirement] = useState({
-    skill_id: "",
+    skill_id: 0,
     min_proficiency_level: 1,
   });
 
@@ -99,7 +99,7 @@ export default function Projects() {
       requirement
     );
 
-    setRequirement({ skill_id: "", min_proficiency_level: 1 });
+    setRequirement({ skill_id: 0, min_proficiency_level: 1 });
     loadRequirements(selectedProject.id);
   };
 
@@ -113,14 +113,14 @@ export default function Projects() {
       {/* CREATE / EDIT */}
       <div className="grid grid-cols-1 md:grid-cols-6 gap-3 mb-6">
         <input
-          className="border px-3 py-2 rounded"
+          className="border border-gray-500 px-3 py-2 rounded"
           placeholder="Project name *"
           value={form.name}
           onChange={e => setForm({ ...form, name: e.target.value })}
         />
 
         <input
-          className="border px-3 py-2 rounded"
+          className="border border-gray-500 px-3 py-2 rounded"
           placeholder="Description"
           value={form.description}
           onChange={e => setForm({ ...form, description: e.target.value })}
@@ -128,7 +128,7 @@ export default function Projects() {
 
         <input
           type="date"
-          className={`border px-3 py-2 rounded ${
+          className={`border border-gray-500 px-3 py-2 rounded ${
             isDateInvalid ? "border-red-500" : ""
           }`}
           value={form.start_date}
@@ -137,7 +137,7 @@ export default function Projects() {
 
         <input
           type="date"
-          className={`border px-3 py-2 rounded ${
+          className={`border border-gray-500 px-3 py-2 rounded ${
             isDateInvalid ? "border-red-500" : ""
           }`}
           value={form.end_date}
@@ -145,7 +145,7 @@ export default function Projects() {
         />
 
         <select
-          className="border px-3 py-2 rounded"
+          className="border border-gray-500 px-3 py-2 rounded"
           value={form.status}
           onChange={e => setForm({ ...form, status: e.target.value })}
         >
@@ -160,7 +160,7 @@ export default function Projects() {
           className={`rounded text-white ${
             isDateInvalid
               ? "bg-gray-400 cursor-not-allowed"
-              : "bg-blue-600"
+              : "bg-green-600"
           }`}
         >
           {editProject ? "Update" : "Create"}
@@ -237,70 +237,122 @@ export default function Projects() {
       </div>
 
       {/* REQUIREMENTS MODAL */}
-      {selectedProject && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center">
-          <div className="bg-white w-full max-w-md rounded-xl shadow">
-            <div className="p-4 border-b">
-              <h2 className="font-semibold">
-                Requirements – {selectedProject.name}
-              </h2>
-            </div>
+    {selectedProject && (
+  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+    <div className="bg-white w-full max-w-lg rounded-2xl shadow-xl overflow-hidden">
 
-            <div className="p-4 space-y-3">
+      {/* Header */}
+      <div className="px-6 py-4 border-b border-gray-500">
+        <h2 className="text-lg font-semibold text-gray-800">
+          Project Requirements
+        </h2>
+        <p className="text-sm text-gray-500">
+          {selectedProject.name}
+        </p>
+      </div>
+
+      {/* Content */}
+      <div className="p-6 space-y-5">
+
+        {/* Existing Requirements */}
+        <div>
+          <h3 className="text-sm font-medium text-gray-700 mb-2">
+            Current Requirements
+          </h3>
+
+          {requirements.length === 0 ? (
+            <p className="text-sm text-gray-400 italic">
+              No requirements added yet
+            </p>
+          ) : (
+            <div className="space-y-2">
               {requirements.map(r => (
-                <div key={r.id} className="text-sm">
-                  {r.skill} – Min {r.min_proficiency_level}
+                <div
+                  key={`${r.project_id}-${r.skill_id}`}
+                  className="flex items-center justify-between bg-gray-50 border border-gray-500 rounded-lg px-4 py-2"
+                >
+                  <span className="text-sm font-medium text-gray-800">
+                    {r.skill}
+                  </span>
+
+                  <span className="text-xs px-3 py-1 rounded-full bg-blue-100 text-blue-700">
+                    Min Level {r.min_proficiency_level}
+                  </span>
                 </div>
               ))}
-
-              <select
-                className="border w-full px-3 py-2 rounded"
-                value={requirement.skill_id}
-                onChange={e =>
-                  setRequirement({ ...requirement, skill_id: e.target.value })
-                }
-              >
-                <option value="">Select Skill</option>
-                {skills.map(s => (
-                  <option key={s.id} value={s.id}>
-                    {s.name}
-                  </option>
-                ))}
-              </select>
-
-              <select
-                className="border w-full px-3 py-2 rounded"
-                value={requirement.min_proficiency_level}
-                onChange={e =>
-                  setRequirement({
-                    ...requirement,
-                    min_proficiency_level: Number(e.target.value),
-                  })
-                }
-              >
-                {[1, 2, 3, 4, 5].map(n => (
-                  <option key={n}>Level {n}</option>
-                ))}
-              </select>
             </div>
+          )}
+        </div>
 
-            <div className="p-4 border-t flex justify-end gap-2">
-              <button
-                onClick={() => setSelectedProject(null)}
-                className="border px-4 py-2 rounded"
-              >
-                Close
-              </button>
-              <button
-                onClick={addRequirement}
-                className="bg-blue-600 text-white px-4 py-2 rounded"
-              >
-                Add
-              </button>
-            </div>
+        {/* Add Requirement */}
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <label className="block text-xs font-medium text-gray-600 mb-1">
+              Skill
+            </label>
+            <select
+              className="w-full border border-gray-500 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              value={requirement.skill_id}
+              onChange={e =>
+                setRequirement({
+                  ...requirement,
+                  skill_id: e.target.value ? Number(e.target.value) : 0,
+                })
+              }
+            >
+              <option value="">Select skill</option>
+              {skills.map(s => (
+                <option key={s.id} value={s.id}>
+                  {s.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-xs font-medium text-gray-600 mb-1">
+              Minimum Level
+            </label>
+            <select
+              className="w-full border border-gray-500 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              value={requirement.min_proficiency_level}
+              onChange={e =>
+                setRequirement({
+                  ...requirement,
+                  min_proficiency_level: Number(e.target.value),
+                })
+              }
+            >
+              {[1, 2, 3, 4, 5].map(n => (
+                <option key={n} value={n}>
+                  Level {n}
+                </option>
+              ))}
+            </select>
           </div>
         </div>
-      )}
+      </div>
+
+      {/* Footer */}
+      <div className="px-6 py-4 border-t border-gray-500 flex justify-end gap-3">
+        <button
+          onClick={() => setSelectedProject(null)}
+          className="px-4 py-2 rounded-lg border text-sm text-gray-600 hover:bg-gray-100"
+        >
+          Cancel
+        </button>
+        <button
+          onClick={addRequirement}
+          className="px-5 py-2 rounded-lg bg-green-600 text-white text-sm font-medium hover:bg-green-700"
+        >
+          Add Requirement
+        </button>
+      </div>
+
+    </div>
+  </div>
+)}
+
     </div>
   );
 }
