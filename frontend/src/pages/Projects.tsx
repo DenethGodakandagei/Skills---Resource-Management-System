@@ -174,67 +174,83 @@ export default function Projects() {
       )}
 
       {/* TABLE */}
-      <div className="bg-white rounded shadow overflow-hidden">
-        <table className="w-full text-sm">
-          <thead className="bg-gray-100">
-            <tr>
-              <th className="p-3 text-left">Project</th>
-              <th className="p-3 text-left">Duration</th>
-              <th className="p-3 text-left">Status</th>
-              <th className="p-3 text-right">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {projects.map(p => (
-              <tr key={p.id} className="border-t hover:bg-gray-50">
-                <td className="p-3 font-medium">{p.name}</td>
-                <td className="p-3 text-xs">
-                  {p.start_date?.slice(0, 10)} → {p.end_date?.slice(0, 10)}
-                </td>
-                <td className="p-3">{p.status}</td>
-                <td className="p-3 text-right space-x-3">
-                  <button
-                    onClick={() => {
-                      setEditProject(p);
-                      setForm({
-                        name: p.name,
-                        description: p.description || "",
-                        start_date: p.start_date
-                          ? p.start_date.slice(0, 10)
-                          : "",
-                        end_date: p.end_date
-                          ? p.end_date.slice(0, 10)
-                          : "",
-                        status: p.status,
-                      });
-                    }}
-                    className="text-green-600"
-                  >
-                    Edit
-                  </button>
+     <div className="bg-white rounded shadow overflow-hidden">
+  <table className="w-full text-sm">
+    <thead className="bg-gray-100">
+      <tr>
+        <th className="p-3 text-left">Project</th>
+        <th className="p-3 text-left">Duration</th>
+        <th className="p-3 text-left">Status</th>
+        <th className="p-3 text-right">Actions</th>
+      </tr>
+    </thead>
 
-                  <button
-                    onClick={() => {
-                      setSelectedProject(p);
-                      loadRequirements(p.id);
-                    }}
-                    className="text-blue-600"
-                  >
-                    Requirements
-                  </button>
+    <tbody>
+      {projects.map((p) => (
+        <tr key={p.id} className="border-t border-gray-200">
+          <td className="p-3">
+            <div className="font-medium">{p.name}</div>
+            {p.description && (
+              <div className="text-xs text-gray-400">
+                {p.description}
+              </div>
+            )}
+          </td>
 
-                  <button
-                    onClick={() => del(p.id)}
-                    className="text-red-500"
-                  >
-                    Delete
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+          <td className="p-3 text-xs text-gray-600">
+            {p.start_date?.slice(0, 10)} → {p.end_date?.slice(0, 10)}
+          </td>
+
+          <td className="p-3">
+            <span className="px-2 py-1 rounded-full text-xs bg-gray-200 text-gray-700">
+              {p.status}
+            </span>
+          </td>
+
+          <td className="p-3 text-right space-x-3">
+            <button
+              onClick={() => {
+                setEditProject(p);
+                setForm({
+                  name: p.name,
+                  description: p.description || "",
+                  start_date: p.start_date
+                    ? p.start_date.slice(0, 10)
+                    : "",
+                  end_date: p.end_date
+                    ? p.end_date.slice(0, 10)
+                    : "",
+                  status: p.status,
+                });
+              }}
+              className="text-green-600"
+            >
+              Edit
+            </button>
+
+            <button
+              onClick={() => {
+                setSelectedProject(p);
+                loadRequirements(p.id);
+              }}
+              className="text-blue-600"
+            >
+              Requirements
+            </button>
+
+            <button
+              onClick={() => del(p.id)}
+              className="text-red-500"
+            >
+              Delete
+            </button>
+          </td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</div>
+
 
       {/* REQUIREMENTS MODAL */}
     {selectedProject && (

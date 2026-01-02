@@ -97,58 +97,69 @@ export default function Skills() {
 
       {/* Table */}
       <div className="bg-white rounded shadow overflow-hidden">
-        <table className="w-full text-sm">
-          <thead className="bg-gray-100">
-            <tr>
-              <th className="p-3 text-left">Skill</th>
-              <th className="p-3 text-left">Category</th>
-              <th className="p-3 text-left">Description</th>
-              <th className="p-3 text-right">Actions</th>
-            </tr>
-          </thead>
+  <table className="w-full text-sm">
+    <thead className="bg-gray-100">
+      <tr>
+        <th className="p-3 text-left">Skill</th>
+        <th className="p-3 text-left">Category</th>
+        <th className="p-3 text-left">Description</th>
+        <th className="p-3 text-right">Actions</th>
+      </tr>
+    </thead>
 
-          <tbody>
-            {skills.length === 0 && (
-              <tr>
-                <td
-                  colSpan={4}
-                  className="p-6 text-center text-gray-400"
-                >
-                  No skills found
-                </td>
-              </tr>
+    <tbody>
+      {skills.length === 0 && (
+        <tr>
+          <td
+            colSpan={4}
+            className="p-6 text-center text-gray-400"
+          >
+            No skills found
+          </td>
+        </tr>
+      )}
+
+      {skills.map((s) => (
+        <tr
+          key={s.id}
+          className="border-t border-gray-200"
+        >
+          <td className="p-3">
+            <div className="font-medium">{s.name}</div>
+          </td>
+
+          <td className="p-3">
+            <span className="px-2 py-1 rounded-full text-xs bg-gray-200 text-gray-700">
+              {s.category}
+            </span>
+          </td>
+
+          <td className="p-3 text-gray-600 text-sm">
+            {s.description || (
+              <span className="text-gray-400">No description</span>
             )}
+          </td>
 
-            {skills.map((s) => (
-              <tr
-                key={s.id}
-                className="border-t hover:bg-gray-50"
-              >
-                <td className="p-3 font-medium">{s.name}</td>
-                <td className="p-3">{s.category}</td>
-                <td className="p-3 text-gray-600">
-                  {s.description}
-                </td>
-                <td className="p-3 text-right space-x-3">
-                  <button
-                    onClick={() => setEditing({ ...s })}
-                    className="text-blue-500 hover:underline"
-                  >
-                    Edit
-                  </button>
+          <td className="p-3 text-right space-x-3">
+            <button
+              onClick={() => setEditing({ ...s })}
+              className="text-green-600"
+            >
+              Edit
+            </button>
 
-                  <button
-                    onClick={() => del(s.id)}
-                    className="text-red-500 hover:underline"
-                  >
-                    Delete
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+            <button
+              onClick={() => del(s.id)}
+              className="text-red-500"
+            >
+              Delete
+            </button>
+          </td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</div>
 
       {/* EDIT MODAL */}
       {editing && (
