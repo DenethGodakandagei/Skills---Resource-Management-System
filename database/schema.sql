@@ -19,7 +19,7 @@ CREATE TABLE skills (
     description TEXT
 );
 
--- 3. Personnel Skills (Junction)
+-- 3. Personnel Skills 
 CREATE TABLE personnel_skills (
     personnel_id INT NOT NULL,
     skill_id INT NOT NULL,
@@ -40,7 +40,7 @@ CREATE TABLE projects (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- 5. Project Requirements (Junction)
+-- 5. Project Requirements 
 CREATE TABLE project_requirements (
     project_id INT NOT NULL,
     skill_id INT NOT NULL,
@@ -50,3 +50,12 @@ CREATE TABLE project_requirements (
     FOREIGN KEY (skill_id) REFERENCES skills(id) ON DELETE CASCADE
 );
 
+-- 6. Project Assignments
+CREATE TABLE project_assignments (
+  project_id INT NOT NULL,
+  personnel_id INT NOT NULL,
+  assigned_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (project_id, personnel_id),
+  FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE,
+  FOREIGN KEY (personnel_id) REFERENCES personnel(id) ON DELETE CASCADE
+);

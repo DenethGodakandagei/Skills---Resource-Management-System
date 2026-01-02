@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import api from "../api/api";
+import AssignedPersonnel from "./AssignedPersonnel";
 
 /* ------------ TYPES ------------ */
 interface Skill {
@@ -19,6 +20,8 @@ interface Result {
 interface Project {
   id: number;
   name: string;
+  start_date: string;
+  end_date: string;
 }
 
 /* ------------ COMPONENT ------------ */
@@ -27,15 +30,16 @@ export default function MatchPersonnel() {
   const [projectId, setProjectId] = useState<number | "">("");
   const [results, setResults] = useState<Result[]>([]);
   const [loading, setLoading] = useState(false);
+  const [assigning, setAssigning] = useState<number | null>(null);
 
   /* ------------ LOAD PROJECTS ------------ */
-  const load = async () => {
+  const loadProjects = async () => {
     const res = await api.get("/projects");
     setProjects(res.data);
   };
 
   useEffect(() => {
-    load();
+    loadProjects();
   }, []);
 
   /* ------------ MATCH ------------ */
@@ -48,6 +52,26 @@ export default function MatchPersonnel() {
     setLoading(false);
   };
 
+  /* ------------ ASSIGN ------------ */
+  const assign = async (personnelId: number) => {
+    if (!projectId) return;
+
+    try {
+      setAssigning(personnelId);
+
+      await api.post("/assignments", {
+        projectId,
+        personnelId
+      });
+
+      alert("Personnel assigned successfully");
+    } catch (err: any) {
+      alert(err.response?.data?.message || "Assignment failed");
+    } finally {
+      setAssigning(null);
+    }
+  };
+
   /* ------------ UI ------------ */
   return (
     <div className="p-6 max-w-7xl mx-auto">
@@ -58,7 +82,7 @@ export default function MatchPersonnel() {
       {/* Project Selector */}
       <div className="flex gap-3 mb-6">
         <select
-          className="border border-gray-500 px-4 py-2 rounded w-72"
+          className="border px-4 py-2 rounded w-72"
           value={projectId}
           onChange={e => setProjectId(Number(e.target.value))}
         >
@@ -83,17 +107,13 @@ export default function MatchPersonnel() {
         </button>
       </div>
 
-      {/* Loading */}
-      {loading && (
-        <p className="text-gray-500">Matching personnel...</p>
-      )}
+      {loading && <p className="text-gray-500">Matching personnel...</p>}
 
-      {/* Empty State */}
       {!loading && results.length === 0 && projectId && (
         <p className="text-gray-500">No matching personnel found</p>
       )}
 
-      {/* Results Table */}
+      {/* Results */}
       {results.length > 0 && (
         <div className="bg-white rounded shadow overflow-hidden">
           <table className="w-full text-sm">
@@ -103,6 +123,7 @@ export default function MatchPersonnel() {
                 <th className="p-3 text-left">Role</th>
                 <th className="p-3 text-left">Skills</th>
                 <th className="p-3 text-center">Match %</th>
+                <th className="p-3 text-center">Action</th>
               </tr>
             </thead>
 
@@ -110,34 +131,38 @@ export default function MatchPersonnel() {
               {results.map(p => (
                 <tr
                   key={p.id}
-                  className="border-t border-gray-200 hover:bg-gray-50"
+                  className="border-t hover:bg-gray-50"
                 >
-                  {/* Name */}
                   <td className="p-3 font-medium">{p.name}</td>
-
-                  {/* Role */}
                   <td className="p-3">{p.role}</td>
 
-                  {/* Skills */}
                   <td className="p-3">
                     <ul className="space-y-1">
                       {p.skills.map((s, i) => (
-                        <li key={i} className="text-sm">
-                          <span className="font-semibold">{s.skill}</span>{" "}
-                          — {s.proficiency}
+                        <li key={i}>
+                          <b>{s.skill}</b> — {s.proficiency}
                           <span className="text-gray-500">
-                            {" "} (Required {s.required})
+                            {" "} (Req {s.required})
                           </span>
                         </li>
                       ))}
                     </ul>
                   </td>
 
-                  {/* Match Score */}
                   <td className="p-3 text-center">
                     <span className="px-3 py-1 rounded-full bg-green-100 text-green-700 font-semibold">
                       {p.match_score}%
                     </span>
+                  </td>
+
+                  <td className="p-3 text-center">
+                    <button
+                      onClick={() => assign(p.id)}
+                      disabled={assigning === p.id}
+                      className="bg-indigo-600 text-white px-4 py-1 rounded hover:bg-indigo-700 disabled:bg-gray-400"
+                    >
+                      {assigning === p.id ? "Assigning..." : "Assign"}
+                    </button>
                   </td>
                 </tr>
               ))}
@@ -145,6 +170,9 @@ export default function MatchPersonnel() {
           </table>
         </div>
       )}
+      {projectId && (
+      <AssignedPersonnel projectId={projectId as number} />
+    )}
     </div>
   );
 }
