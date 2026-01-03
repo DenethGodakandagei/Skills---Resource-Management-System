@@ -1,10 +1,14 @@
 import { useEffect, useState } from "react";
 import api from "../api/api";
-import Modal from "../components/Modal";
+
+import AddPersonnelModal, {
+  type ExperienceLevel,
+} from "../components/AddPersonnelModal";
+
+import AssignSkillModal from "../components/AssignSkillModal";
+
 
 /* ---------------- TYPES ---------------- */
-type ExperienceLevel = "Junior" | "Mid-Level" | "Senior";
-
 type Personnel = {
   id: number;
   name: string;
@@ -32,15 +36,17 @@ export default function Personnel() {
   const [personnelSkills, setPersonnelSkills] = useState<
     Record<number, AssignedSkill[]>
   >({});
-  const [editMode, setEditMode] = useState(false);
-  const [editingId, setEditingId] = useState<number | null>(null);
 
   const [search, setSearch] = useState("");
+
+  /* ---- MODALS ---- */
   const [open, setOpen] = useState(false);
   const [assignOpen, setAssignOpen] = useState(false);
-  const [selectedPersonnel, setSelectedPersonnel] = useState<Personnel | null>(
-    null
-  );
+  const [selectedPersonnel, setSelectedPersonnel] =
+    useState<Personnel | null>(null);
+
+  const [editMode, setEditMode] = useState(false);
+  const [editingId, setEditingId] = useState<number | null>(null);
 
   const [form, setForm] = useState({
     name: "",
@@ -78,10 +84,8 @@ export default function Personnel() {
   /* ---------------- ACTIONS ---------------- */
   const submitPersonnel = async () => {
     if (editMode && editingId) {
-      // UPDATE
       await api.put(`/personnel/${editingId}`, form);
     } else {
-      // CREATE
       await api.post("/personnel", form);
     }
 
@@ -120,36 +124,30 @@ export default function Personnel() {
   const assignSkill = async () => {
     if (!selectedPersonnel) return;
 
-    await api.post(`/personnel/${selectedPersonnel.id}/skills`, {
-      skill_id: assignForm.skill_id,
-      proficiency_level: assignForm.proficiency_level,
-    });
+    await api.post(`/personnel/${selectedPersonnel.id}/skills`, assignForm);
 
     setAssignOpen(false);
     setAssignForm({ skill_id: "", proficiency_level: 3 });
     loadPersonnelSkills(selectedPersonnel.id);
   };
 
-  const badgeColor = (level: ExperienceLevel) => {
-    if (level === "Senior") return "bg-purple-100 text-purple-700";
-    if (level === "Mid-Level") return "bg-blue-100 text-blue-700";
-    return "bg-yellow-100 text-yellow-700";
-  };
   const openEditPersonnel = (p: Personnel) => {
-    setForm({
-      name: p.name,
-      email: p.email,
-      role: p.role,
-      experience_level: p.experience_level,
-    });
+    setForm(p);
     setEditingId(p.id);
     setEditMode(true);
     setOpen(true);
   };
 
+  const badgeColor = (level: ExperienceLevel) =>
+    level === "Senior"
+      ? "bg-purple-100 text-purple-700"
+      : level === "Mid-Level"
+      ? "bg-blue-100 text-blue-700"
+      : "bg-yellow-100 text-yellow-700";
+
   /* ---------------- UI ---------------- */
   return (
-    <div className="p-6  mx-auto max-w-7xl">
+    <div className="p-6 max-w-7xl mx-auto">
       {/* Header */}
       <div className="flex justify-between mb-6">
         <div>
@@ -168,7 +166,7 @@ export default function Personnel() {
 
       {/* Search */}
       <input
-        className="w-full md:w-1/3 mb-4 px-3 py-2 border border-gray-400 rounded"
+        className="w-full md:w-1/3 mb-4 px-3 py-2 border rounded"
         placeholder="Search personnel..."
         value={search}
         onChange={(e) => setSearch(e.target.value)}
@@ -187,10 +185,11 @@ export default function Personnel() {
           </thead>
           <tbody>
             {list
-              .filter((p) =>
-                `${p.name}${p.email}${p.role}`
-                  .toLowerCase()
-                  .includes(search.toLowerCase())
+              .filter(
+                (p) =>
+                  `${p.name}${p.email}${p.role}`
+                    .toLowerCase()
+                    .includes(search.toLowerCase())
               )
               .map((p) => (
                 <>
@@ -201,11 +200,9 @@ export default function Personnel() {
                     </td>
                     <td className="p-3">{p.role}</td>
                     <td className="p-3">
-                      <span
-                        className={`px-2 py-1 rounded-full text-xs ${badgeColor(
-                          p.experience_level
-                        )}`}
-                      >
+                      <span className={`px-2 py-1 rounded-full text-xs ${badgeColor(
+                        p.experience_level
+                      )}`}>
                         {p.experience_level}
                       </span>
                     </td>
@@ -216,21 +213,18 @@ export default function Personnel() {
                       >
                         {expanded === p.id ? "Hide Skills" : "View Skills"}
                       </button>
-
                       <button
                         onClick={() => openAssignSkill(p)}
                         className="text-blue-600"
                       >
                         Assign
                       </button>
-
                       <button
                         onClick={() => openEditPersonnel(p)}
                         className="text-green-600"
                       >
                         Edit
                       </button>
-
                       <button
                         onClick={() => deletePersonnel(p.id)}
                         className="text-red-500"
@@ -239,7 +233,6 @@ export default function Personnel() {
                       </button>
                     </td>
                   </tr>
-
                   {/* Skills Row */}
                   {expanded === p.id && (
                     <tr className="bg-gray-50">
@@ -269,104 +262,25 @@ export default function Personnel() {
         </table>
       </div>
 
-      {/* ADD PERSONNEL MODAL */}
-      <Modal isOpen={open} onClose={() => setOpen(false)} title="Add Personnel">
-        <div className="space-y-3">
-          <input
-            className="input w-full"
-            placeholder="Name"
-            value={form.name}
-            onChange={(e) => setForm({ ...form, name: e.target.value })}
-          />
-          <input
-            className="input w-full"
-            placeholder="Email"
-            value={form.email}
-            onChange={(e) => setForm({ ...form, email: e.target.value })}
-          />
-          <input
-            className="input w-full"
-            placeholder="Role"
-            value={form.role}
-            onChange={(e) => setForm({ ...form, role: e.target.value })}
-          />
-          <select
-            className="input w-full"
-            value={form.experience_level}
-            onChange={(e) =>
-              setForm({
-                ...form,
-                experience_level: e.target.value as ExperienceLevel,
-              })
-            }
-          >
-            <option>Junior</option>
-            <option>Mid-Level</option>
-            <option>Senior</option>
-          </select>
+      {/* MODALS */}
+      <>
+        <AddPersonnelModal
+          open={open}
+          setOpen={setOpen}
+          form={form}
+          setForm={setForm}
+          submitPersonnel={submitPersonnel}
+        />
 
-          <div className="flex justify-end gap-2">
-            <button onClick={() => setOpen(false)}>Cancel</button>
-            <button
-              onClick={submitPersonnel}
-              className="bg-green-600 text-white px-4 py-2 rounded"
-            >
-              Save
-            </button>
-          </div>
-        </div>
-      </Modal>
-
-      {/* ASSIGN SKILL MODAL */}
-      <Modal
-        isOpen={assignOpen}
-        onClose={() => setAssignOpen(false)}
-        title={`Assign Skill`}
-      >
-        <div className="space-y-4">
-          <select
-            className="input w-full"
-            value={assignForm.skill_id}
-            onChange={(e) =>
-              setAssignForm({ ...assignForm, skill_id: e.target.value })
-            }
-          >
-            <option value="">Select Skill</option>
-            {skills.map((s) => (
-              <option key={s.id} value={s.id}>
-                {s.name}
-              </option>
-            ))}
-          </select>
-
-          <select
-            className="input w-full"
-            value={assignForm.proficiency_level}
-            onChange={(e) =>
-              setAssignForm({
-                ...assignForm,
-                proficiency_level: Number(e.target.value),
-              })
-            }
-          >
-            {[1, 2, 3, 4, 5].map((l) => (
-              <option key={l} value={l}>
-                Level {l}
-              </option>
-            ))}
-          </select>
-
-          <div className="flex justify-end gap-2">
-            <button onClick={() => setAssignOpen(false)}>Cancel</button>
-            <button
-              onClick={assignSkill}
-              className="bg-blue-600 text-white px-4 py-2 rounded"
-            >
-              Assign
-            </button>
-          </div>
-        </div>
-      </Modal>
+        <AssignSkillModal
+          assignOpen={assignOpen}
+          setAssignOpen={setAssignOpen}
+          skills={skills}
+          assignForm={assignForm}
+          setAssignForm={setAssignForm}
+          assignSkill={assignSkill}
+        />
+      </>
     </div>
   );
 }

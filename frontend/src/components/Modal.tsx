@@ -1,4 +1,3 @@
-// src/components/Modal.tsx
 import type { ReactNode } from "react";
 
 type Props = {
