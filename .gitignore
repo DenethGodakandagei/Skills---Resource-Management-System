@@ -9,8 +9,6 @@ build/
 **/build/
 
 # -------------------- Env files --------------------
-.env
-.env.*
 !.env.example
 
 # -------------------- Logs --------------------
@@ -27,3 +25,4 @@ Thumbs.db
 .vscode/
 .idea/
 *.swp
+config.bat
