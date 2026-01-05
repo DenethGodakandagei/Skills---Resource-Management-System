@@ -9,8 +9,6 @@ build/
 **/build/
 
 # -------------------- Env files --------------------
-.env
-.env.*
 !.env.example
 
 # -------------------- Logs --------------------
@@ -24,6 +22,6 @@ pnpm-debug.log*
 Thumbs.db
 
 # -------------------- IDE / Editor --------------------
-.vscode/
 .idea/
 *.swp
+config.bat
