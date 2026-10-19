@@ -22,7 +22,6 @@ pnpm-debug.log*
 Thumbs.db
 
 # -------------------- IDE / Editor --------------------
-.vscode/
 .idea/
 *.swp
 config.bat
